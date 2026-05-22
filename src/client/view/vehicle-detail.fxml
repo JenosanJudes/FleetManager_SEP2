@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="client.view.VehicleDetailController">
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <HBox spacing="20" style="-fx-padding: 16;">
+
+                <!-- Venstre kolonne: Stamdata -->
+                <VBox spacing="10" prefWidth="380">
+                    <Label text="Information" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                    <GridPane hgap="10" vgap="8">
+                        <Label text="Reg.nr. *"         GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="licensePlateField"  GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220"/>
+
+                        <Label text="Mærke"             GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="brandField"        GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Model"             GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="modelField"        GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Type"              GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="vehicleTypeBox"     GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                        <Label text="Plade (farve)"     GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="plateColorBox"      GridPane.rowIndex="4" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                        <Label text="Ejerforhold"       GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <TextField fx:id="ownershipField"    GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                        <Label text="Leasingtype"       GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="leasingTypeBox"     GridPane.rowIndex="6" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                        <Label text="Aftalenr."         GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <TextField fx:id="agreementNoField"  GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <Label text="Afdeling"          GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="departmentBox"      GridPane.rowIndex="8" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                        <Label text="Status"            GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="statusBox"          GridPane.rowIndex="9" GridPane.columnIndex="1" maxWidth="Infinity"/>
+                    </GridPane>
+
+                    <!-- Bilfører sektion -->
+                    <Separator/>
+                    <Label text="Bilfører" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                    <GridPane hgap="10" vgap="8">
+                        <Label text="Navn"      GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="driverNameLabel"  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Mail"      GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label fx:id="driverEmailLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Tlf."      GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <Label fx:id="driverPhoneLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Afdeling"  GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label fx:id="driverDeptLabel"  GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <ComboBox fx:id="assignEmployeeBox" promptText="Vælg bilfører..." HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Button text="Tildel" onAction="#onAssignClick"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Højre kolonne: Kontraktinfo -->
+                <VBox spacing="10" prefWidth="340">
+                    <Label text="Kontrakt" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                    <GridPane hgap="10" vgap="8">
+                        <Label text="Max km"            GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="maxKmField"        GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="180"/>
+
+                        <Label text="Leveringsdato"     GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <DatePicker fx:id="deliveryDatePicker" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Leasing start"     GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <DatePicker fx:id="leasingStartPicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Leasing slut"      GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <DatePicker fx:id="leasingEndPicker"   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Udløbsdato"        GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <DatePicker fx:id="expiryDatePicker"   GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Bundlinje med knapper -->
+    <bottom>
+        <HBox spacing="8" alignment="CENTER_RIGHT" style="-fx-padding: 10 16;">
+            <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Annuller" onAction="#onCancelClick"/>
+            <Button text="Gem" onAction="#onSaveClick"
+                    style="-fx-background-color: #5c2d91; -fx-text-fill: white;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

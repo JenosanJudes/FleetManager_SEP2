@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="client.view.VehicleListController"
+      spacing="10">
+
+    <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+
+    <!-- Søgebar og knapper -->
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Søg på reg.nr..." prefWidth="220"/>
+        <Button text="Søg" onAction="#onSearchClick"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="+ Ny bil" onAction="#onNewVehicleClick"
+                style="-fx-background-color: #5c2d91; -fx-text-fill: white;"/>
+    </HBox>
+
+    <!-- Tabel med biler -->
+    <TableView fx:id="vehicleTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colLicensePlate" text="Reg.nr."    prefWidth="90"/>
+            <TableColumn fx:id="colBrand"        text="Mærke"      prefWidth="100"/>
+            <TableColumn fx:id="colModel"        text="Model"      prefWidth="120"/>
+            <TableColumn fx:id="colType"         text="Type"       prefWidth="90"/>
+            <TableColumn fx:id="colOwnership"    text="Ejerforhold" prefWidth="120"/>
+            <TableColumn fx:id="colDepartment"   text="Afdeling"   prefWidth="150"/>
+            <TableColumn fx:id="colStatus"       text="Status"     prefWidth="80"/>
+        </columns>
+        <placeholder><Label text="Ingen biler fundet"/></placeholder>
+    </TableView>
+
+    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
+</VBox>

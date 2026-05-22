@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="client.view.MainController">
+
+    <!-- Topbar -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #5c2d91; -fx-padding: 10 20;">
+            <Label text="Fleet Manager"
+                   style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="userLabel" style="-fx-text-fill: white; -fx-font-size: 13;"/>
+            <Button text="Log ud" onAction="#onLogoutClick"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 4;"/>
+        </HBox>
+    </top>
+
+    <!-- Faner -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Biler">
+                <fx:include source="vehicles-tab.fxml"/>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>
