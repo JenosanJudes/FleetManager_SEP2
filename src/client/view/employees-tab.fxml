@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="client.view.EmployeeListController"
+      spacing="10">
+
+    <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+
+    <!-- Søgebar og knapper -->
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Søg på navn..." prefWidth="220"/>
+        <Button text="Søg" onAction="#onSearchClick"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="+ Ny medarbejder" onAction="#onNewEmployeeClick"
+                style="-fx-background-color: #5c2d91; -fx-text-fill: white;"/>
+    </HBox>
+
+    <!-- Tabel med medarbejdere -->
+    <TableView fx:id="employeeTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colEmployeeNo" text="Medarb.nr." prefWidth="100"/>
+            <TableColumn fx:id="colName"       text="Navn"       prefWidth="180"/>
+            <TableColumn fx:id="colEmail"      text="Email"      prefWidth="200"/>
+            <TableColumn fx:id="colPhone"      text="Telefon"    prefWidth="130"/>
+            <TableColumn fx:id="colDepartment" text="Afdeling"   prefWidth="130"/>
+            <TableColumn fx:id="colRole"       text="Rolle"      prefWidth="120"/>
+            <TableColumn fx:id="colStatus"     text="Status"     prefWidth="90"/>
+        </columns>
+        <placeholder><Label text="Ingen medarbejdere fundet"/></placeholder>
+    </TableView>
+
+    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
+</VBox>

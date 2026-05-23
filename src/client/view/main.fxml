@@ -25,6 +25,9 @@
             <Tab text="Biler">
                 <fx:include source="vehicles-tab.fxml"/>
             </Tab>
+            <Tab text="Medarbejdere">
+                <fx:include source="employees-tab.fxml"/>
+            </Tab>
         </TabPane>
     </center>
 </BorderPane>

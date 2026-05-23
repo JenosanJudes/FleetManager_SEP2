@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="client.view.EmployeeDetailController">
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="12" style="-fx-padding: 20;" maxWidth="420">
+
+                <Label text="Medarbejder" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+                <GridPane hgap="12" vgap="10">
+                    <Label text="Medarb.nr."  GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="employeeNoField" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="240"/>
+
+                    <Label text="Fuldt navn *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="fullNameField"   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Email"        GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="emailField"      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="Telefon"      GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <TextField fx:id="phoneField"      GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Label text="Afdeling"     GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="departmentBox"    GridPane.rowIndex="4" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                    <Label text="Rolle"        GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="roleBox"          GridPane.rowIndex="5" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                    <Label text="Status"       GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="statusBox"        GridPane.rowIndex="6" GridPane.columnIndex="1" maxWidth="Infinity"/>
+                </GridPane>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Bundlinje med knapper -->
+    <bottom>
+        <HBox spacing="8" alignment="CENTER_RIGHT" style="-fx-padding: 10 16;">
+            <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Annuller" onAction="#onCancelClick"/>
+            <Button text="Gem" onAction="#onSaveClick"
+                    style="-fx-background-color: #5c2d91; -fx-text-fill: white;"/>
+        </HBox>
+    </bottom>
+</BorderPane>
