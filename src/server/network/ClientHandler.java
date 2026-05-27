@@ -16,24 +16,27 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
 
     // Services bruges til at udføre forretningslogikken
-    private final AuthService authService;
-    private final VehicleService vehicleService;
-    private final EmployeeService employeeService;
-    private final DepartmentDao departmentDao;
-    private final AssignmentDao assignmentDao;
+    private final AuthService       authService;
+    private final VehicleService    vehicleService;
+    private final EmployeeService   employeeService;
+    private final DepartmentService departmentService;
+    private final AssignmentService assignmentService;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
 
         // Opretter DAOs og services
-        SqlUserDao userDao = new SqlUserDao();
-        SqlVehicleDao vehicleDao = new SqlVehicleDao();
-        SqlEmployeeDao employeeDao = new SqlEmployeeDao();
-        this.departmentDao  = new SqlDepartmentDao();
-        this.assignmentDao  = new SqlAssignmentDao();
-        this.authService    = new AuthService(userDao);
-        this.vehicleService = new VehicleService(vehicleDao);
-        this.employeeService = new EmployeeService(employeeDao);
+        SqlUserDao       userDao       = new SqlUserDao();
+        SqlVehicleDao    vehicleDao    = new SqlVehicleDao();
+        SqlEmployeeDao   employeeDao   = new SqlEmployeeDao();
+        SqlDepartmentDao departmentDao = new SqlDepartmentDao();
+        SqlAssignmentDao assignmentDao = new SqlAssignmentDao();
+
+        this.authService       = new AuthService(userDao);
+        this.vehicleService    = new VehicleService(vehicleDao);
+        this.employeeService   = new EmployeeService(employeeDao);
+        this.departmentService = new DepartmentService(departmentDao);
+        this.assignmentService = new AssignmentService(assignmentDao);
     }
 
     @Override
@@ -96,22 +99,22 @@ public class ClientHandler implements Runnable {
                     yield Response.ok(updated);
                 }
                 case GET_ALL_DEPARTMENTS -> {
-                    List<Department> departments = departmentDao.getAll();
+                    List<Department> departments = departmentService.getAll();
                     yield Response.ok(departments);
                 }
                 case ASSIGN_VEHICLE -> {
                     int[] ids = (int[]) request.getData();
-                    VehicleAssignment assignment = assignmentDao.assign(ids[0], ids[1]);
+                    VehicleAssignment assignment = assignmentService.assign(ids[0], ids[1]);
                     yield Response.ok(assignment);
                 }
                 case UNASSIGN_VEHICLE -> {
                     int vehicleId = (int) request.getData();
-                    assignmentDao.unassign(vehicleId);
+                    assignmentService.unassign(vehicleId);
                     yield Response.ok(null);
                 }
                 case GET_ASSIGNMENT_FOR_VEHICLE -> {
                     int vehicleId = (int) request.getData();
-                    VehicleAssignment assignment = assignmentDao.getActiveForVehicle(vehicleId);
+                    VehicleAssignment assignment = assignmentService.getActiveForVehicle(vehicleId);
                     yield Response.ok(assignment);
                 }
                 default -> Response.error("Ukendt request type");
