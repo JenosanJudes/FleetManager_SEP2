@@ -24,6 +24,9 @@ public class ServerConnection {
     // Den seneste response fra serveren (sættes af reader-tråden)
     private Response lastResponse;
 
+    // Bruges til at sikre at kun én request er i gang ad gangen
+    private final Object requestLock = new Object();
+
     // Opret forbindelsen til serveren
     public void connect() throws IOException {
         Socket socket = new Socket(HOST, PORT);
@@ -64,11 +67,16 @@ public class ServerConnection {
     }
 
     // Send en request og vent på svaret (NEC1 - synchronized + wait/notifyAll)
-    public synchronized Response send(Request request) throws Exception {
-        out.writeObject(request);
-        out.flush();
-        wait(); // Frigiver låsen og venter - reader-tråden kalder notifyAll() når svaret er klar
-        return lastResponse;
+    // requestLock sikrer at kun én request sendes ad gangen, så svarene ikke blandes sammen
+    public Response send(Request request) throws Exception {
+        synchronized (requestLock) {
+            synchronized (this) {
+                out.writeObject(request);
+                out.flush();
+                wait(); // Frigiver den inderste lås og venter på notifyAll() fra reader-tråden
+            }
+            return lastResponse;
+        }
     }
 
     // Tilmeld en lytter til et bestemt push-hændelse (NEC1 L8 - PropertyChangeListener)
