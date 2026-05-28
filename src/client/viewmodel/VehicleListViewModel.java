@@ -1,7 +1,6 @@
 package client.viewmodel;
 
 import client.AppContext;
-import client.network.ServerPushListener;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -12,30 +11,30 @@ import shared.protocol.Request;
 import shared.protocol.RequestType;
 import shared.protocol.Response;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
-// ViewModel for bils-listen - henter og holder styr på biler
-// Implementerer ServerPushListener (Observer-mønsteret) så den får besked ved ændringer
-public class VehicleListViewModel implements ServerPushListener {
+// ViewModel for bil-listen
+// Implementerer PropertyChangeListener (Observer-mønsteret, NEC1 Lektion 8)
+public class VehicleListViewModel implements PropertyChangeListener {
 
     private final ObservableList<Vehicle> vehicles = FXCollections.observableArrayList();
-    private final StringProperty searchText = new SimpleStringProperty("");
+    private final StringProperty searchText    = new SimpleStringProperty("");
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
     public VehicleListViewModel() {
-        // Tilmeld os som Observer - serveren informerer os når biler/tildelinger ændres
-        AppContext.getConnection().addPushListener(this);
+        // Tilmeld os som Observer - vi får besked når en anden klient ændrer biler eller tildelinger
+        AppContext.getConnection().addListener("VEHICLES_UPDATED", this);
     }
 
-    // Kaldes af serveren når en anden klient har tilføjet/ændret en bil eller tildeling
+    // Kaldes automatisk af PropertyChangeSupport når serveren sender "VEHICLES_UPDATED" (NEC1 L8)
     @Override
-    public void onPush(String event) {
-        if ("VEHICLES_UPDATED".equals(event)) {
-            loadVehicles();
-        }
+    public void propertyChange(PropertyChangeEvent event) {
+        loadVehicles();
     }
 
-    // Henter alle biler fra serveren i en baggrundstråd
+    // Henter alle biler fra serveren i en baggrundstråd (NEC1 - Thread + Platform.runLater)
     public void loadVehicles() {
         new Thread(() -> {
             try {
@@ -44,7 +43,6 @@ public class VehicleListViewModel implements ServerPushListener {
 
                 if (response.isSuccess()) {
                     List<Vehicle> list = (List<Vehicle>) response.getData();
-                    // Opdater UI på JavaFX-tråden
                     Platform.runLater(() -> vehicles.setAll(list));
                 } else {
                     Platform.runLater(() -> statusMessage.set(response.getMessage()));
@@ -82,7 +80,7 @@ public class VehicleListViewModel implements ServerPushListener {
                 Response response = AppContext.getConnection().send(request);
 
                 if (response.isSuccess()) {
-                    loadVehicles(); // Genindlæs listen
+                    loadVehicles();
                 } else {
                     Platform.runLater(() -> statusMessage.set(response.getMessage()));
                 }

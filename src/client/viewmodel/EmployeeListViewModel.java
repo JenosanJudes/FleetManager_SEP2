@@ -1,7 +1,6 @@
 package client.viewmodel;
 
 import client.AppContext;
-import client.network.ServerPushListener;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -12,30 +11,31 @@ import shared.protocol.Request;
 import shared.protocol.RequestType;
 import shared.protocol.Response;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 
 // ViewModel for medarbejder-listen
-// Implementerer ServerPushListener (Observer-mønsteret) så den får besked ved ændringer
-public class EmployeeListViewModel implements ServerPushListener {
+// Implementerer PropertyChangeListener (Observer-mønsteret, NEC1 Lektion 8)
+public class EmployeeListViewModel implements PropertyChangeListener {
 
     private final ObservableList<Employee> employees = FXCollections.observableArrayList();
     private final StringProperty searchText    = new SimpleStringProperty("");
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
     public EmployeeListViewModel() {
-        // Tilmeld os som Observer - serveren informerer os når medarbejdere ændres
-        AppContext.getConnection().addPushListener(this);
+        // Tilmeld os som Observer - vi får besked når en anden klient ændrer medarbejdere
+        AppContext.getConnection().addListener("EMPLOYEES_UPDATED", this);
     }
 
-    // Kaldes af serveren når en anden klient har ændret medarbejdere
+    // Kaldes automatisk af PropertyChangeSupport når serveren sender "EMPLOYEES_UPDATED" (NEC1 L8)
     @Override
-    public void onPush(String event) {
-        if ("EMPLOYEES_UPDATED".equals(event)) {
-            loadEmployees();
-        }
+    public void propertyChange(PropertyChangeEvent event) {
+        loadEmployees();
     }
 
-    // Henter alle medarbejdere fra serveren i baggrunden
+    // Henter alle medarbejdere fra serveren i baggrunden (NEC1 - Thread + Platform.runLater)
     public void loadEmployees() {
         new Thread(() -> {
             try {
@@ -54,7 +54,7 @@ public class EmployeeListViewModel implements ServerPushListener {
         }).start();
     }
 
-    // Søger på navn
+    // Søger på navn - bruger for-løkke i stedet for stream (pensum)
     public void search() {
         String query = searchText.get().toLowerCase();
         new Thread(() -> {
@@ -64,9 +64,15 @@ public class EmployeeListViewModel implements ServerPushListener {
 
                 if (response.isSuccess()) {
                     List<Employee> all = (List<Employee>) response.getData();
-                    List<Employee> filtered = all.stream()
-                            .filter(e -> e.fullName().toLowerCase().contains(query))
-                            .toList();
+
+                    // Filtrer med for-løkke
+                    List<Employee> filtered = new ArrayList<>();
+                    for (Employee e : all) {
+                        if (e.fullName().toLowerCase().contains(query)) {
+                            filtered.add(e);
+                        }
+                    }
+
                     Platform.runLater(() -> employees.setAll(filtered));
                 }
             } catch (Exception e) {

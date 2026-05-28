@@ -3,12 +3,13 @@ package client.network;
 import shared.protocol.Request;
 import shared.protocol.Response;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 // Forbindelsen til serveren - sender requests og modtager responses + push-notifikationer
+// Bruger PropertyChangeSupport til observer-mønsteret (som NEC1 Lektion 8)
 public class ServerConnection {
 
     private static final String HOST = "localhost";
@@ -17,8 +18,8 @@ public class ServerConnection {
     private ObjectOutputStream out;
     private ObjectInputStream  in;
 
-    // Observer-lyttere der informeres ved server-push (Observer-mønsteret)
-    private final List<ServerPushListener> pushListeners = new ArrayList<>();
+    // PropertyChangeSupport bruges til at informere lyttere om server-push (NEC1 Observer-mønster)
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
     // Den seneste response fra serveren (sættes af reader-tråden)
     private Response lastResponse;
@@ -33,8 +34,7 @@ public class ServerConnection {
         System.out.println("Forbundet til serveren");
     }
 
-    // Baggrundstråd der læser ALT indkommende fra serveren
-    // Adskiller push-notifikationer fra svar på requests
+    // Baggrundstråd der læser ALT indkommende fra serveren (NEC1 - receiver thread)
     private void startReaderThread() {
         Thread reader = new Thread(() -> {
             while (true) {
@@ -42,20 +42,14 @@ public class ServerConnection {
                     Response response = (Response) in.readObject();
 
                     if (response.isPush()) {
-                        // Server-push: informer alle Observer-lyttere
-                        // Lav en kopi af listen så vi ikke holder låsen mens vi kalder lytterne
-                        List<ServerPushListener> snapshot;
-                        synchronized (this) {
-                            snapshot = new ArrayList<>(pushListeners);
-                        }
-                        for (ServerPushListener listener : snapshot) {
-                            listener.onPush(response.getMessage());
-                        }
+                        // Server-push: brug PropertyChangeSupport til at informere lyttere (NEC1 L8)
+                        // Hændelsesnavnet er f.eks. "EMPLOYEES_UPDATED" eller "VEHICLES_UPDATED"
+                        support.firePropertyChange(response.getMessage(), null, null);
                     } else {
-                        // Svar på vores request: gem svaret og vågn send() op
+                        // Svar på vores request: gem svaret og vågn send() op (NEC1 - wait/notify)
                         synchronized (this) {
                             lastResponse = response;
-                            notifyAll(); // Vækker den ventende send()-metode
+                            notifyAll();
                         }
                     }
 
@@ -69,8 +63,7 @@ public class ServerConnection {
         reader.start();
     }
 
-    // Send en request og vent på svaret
-    // Bruger wait()/notifyAll() fra SDT1 i stedet for avanceret CompletableFuture
+    // Send en request og vent på svaret (NEC1 - synchronized + wait/notifyAll)
     public synchronized Response send(Request request) throws Exception {
         out.writeObject(request);
         out.flush();
@@ -78,8 +71,8 @@ public class ServerConnection {
         return lastResponse;
     }
 
-    // Tilmeld en Observer-lytter til server-push notifikationer
-    public synchronized void addPushListener(ServerPushListener listener) {
-        pushListeners.add(listener);
+    // Tilmeld en lytter til et bestemt push-hændelse (NEC1 L8 - PropertyChangeListener)
+    public void addListener(String eventName, PropertyChangeListener listener) {
+        support.addPropertyChangeListener(eventName, listener);
     }
 }
