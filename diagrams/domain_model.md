@@ -3,6 +3,7 @@
 Kopiér koden nedenfor ind på https://mermaid.live
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f5c218', 'primaryTextColor': '#000', 'primaryBorderColor': '#c8a000', 'lineColor': '#555', 'secondaryColor': '#fffde7'}}}%%
 classDiagram
     direction TB
 

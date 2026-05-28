@@ -3,6 +3,7 @@
 Kopiér koden nedenfor ind på https://mermaid.live
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f5c218', 'primaryTextColor': '#000', 'primaryBorderColor': '#c8a000', 'lineColor': '#555', 'secondaryColor': '#fffde7', 'actorBkg': '#f5c218', 'actorTextColor': '#000', 'actorBorderColor': '#c8a000'}}}%%
 sequenceDiagram
     actor FA as Flådeansvarlig
     participant K as Klient (JavaFX)
@@ -22,6 +23,7 @@ sequenceDiagram
 
     alt Gyldig bruger og korrekt password
         S-->>K: Response.ok(User)
+        Note over K: AppContext gemmer User\nstartReaderThread() starter
         K-->>FA: Åbner hovedskærmen (biler/medarbejdere)
     else Forkert brugernavn eller password
         S-->>K: Response.error("Forkert brugernavn eller password")

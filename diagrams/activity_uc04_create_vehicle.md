@@ -24,11 +24,13 @@ flowchart TD
     J -- Nej --> M["SqlVehicleDao INSERT bil i vehicles-tabellen"]
     M --> N["PostgreSQL returnerer ny id via RETURNING id"]
     N --> O["Server henter fuldt Vehicle-objekt med JOIN (inkl. afdelingsnavn)"]
-    O --> P["Server returnerer Response.ok(Vehicle)"]
-    P --> Q["Klienten genindlæser billet (loadVehicles)"]
-    Q --> R["Ny bil vises i listen"]
-    R --> S([Slut])
+    O --> P["Server returnerer Response.ok(Vehicle) til klienten"]
+    P --> Q["Server broadcaster Response.push('VEHICLES_UPDATED')\ntil alle andre forbundne klienter"]
+    Q --> R["Klienten genindlæser listen (loadVehicles)"]
+    R --> S["Ny bil vises i listen"]
+    S --> T([Slut])
 
-    style A fill:#5c2d91,color:#fff
-    style S fill:#5c2d91,color:#fff
+    style A fill:#f5c218,color:#000,stroke:#c8a000
+    style T fill:#f5c218,color:#000,stroke:#c8a000
+    style Q fill:#fffde7,stroke:#c8a000,stroke-dasharray:5 5
 ```

@@ -3,6 +3,7 @@
 Kopiér koden nedenfor ind på https://mermaid.live
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f5c218', 'primaryTextColor': '#000', 'primaryBorderColor': '#c8a000', 'lineColor': '#555', 'secondaryColor': '#fffde7', 'tertiaryColor': '#fff9e6'}}}%%
 classDiagram
     direction TB
 
@@ -21,7 +22,6 @@ classDiagram
         +initialize()
         +onSearch()
         +onNewVehicle()
-        +onEditVehicle()
     }
     class VehicleListViewModel {
         -vehicles : ObservableList
@@ -30,6 +30,7 @@ classDiagram
         +loadVehicles()
         +search()
         +saveVehicle(v)
+        +propertyChange(event)
     }
     class EmployeeListViewModel {
         -employees : ObservableList
@@ -37,10 +38,14 @@ classDiagram
         +loadEmployees()
         +search()
         +saveEmployee(e)
+        +propertyChange(event)
     }
     class ServerConnection {
+        -support : PropertyChangeSupport
+        -lastResponse : Response
         +connect()
         +send(Request) Response
+        +addListener(eventName, PropertyChangeListener)
     }
     class AppContext {
         -connection : ServerConnection
@@ -58,24 +63,32 @@ classDiagram
     }
     class Response {
         -success : boolean
-        -message : String
+        -push : boolean
         -data : Object
+        -message : String
         +ok(data) Response
         +error(msg) Response
+        +push(event) Response
+        +isPush() boolean
     }
 
     %% ── SERVER ──────────────────────────────────
     class Server {
         -threadPool : ExecutorService
+        -connectedClients : HashSet
         +start()
+        +unregister(handler)
+        +broadcast(push, sender)
     }
     class ClientHandler {
+        -server : Server
         -authService : AuthService
         -vehicleService : VehicleService
         -employeeService : EmployeeService
         -departmentService : DepartmentService
         -assignmentService : AssignmentService
         +run()
+        +pushToClient(push)
         -handleRequest(Request) Response
     }
     class VehicleService {
