@@ -20,6 +20,15 @@ public class VehicleListViewModel {
     private final StringProperty searchText = new SimpleStringProperty("");
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
+    public VehicleListViewModel() {
+        // Lyt på server-push: genindlæs biler hvis en anden klient tilføjer/ændrer/tildeler
+        AppContext.getConnection().addPushListener(event -> {
+            if ("VEHICLES_UPDATED".equals(event)) {
+                loadVehicles();
+            }
+        });
+    }
+
     // Henter alle biler fra serveren i en baggrundstråd
     public void loadVehicles() {
         new Thread(() -> {

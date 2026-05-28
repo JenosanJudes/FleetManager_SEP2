@@ -20,6 +20,15 @@ public class EmployeeListViewModel {
     private final StringProperty searchText    = new SimpleStringProperty("");
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
+    public EmployeeListViewModel() {
+        // Lyt på server-push: genindlæs listen automatisk hvis en anden klient ændrer noget
+        AppContext.getConnection().addPushListener(event -> {
+            if ("EMPLOYEES_UPDATED".equals(event)) {
+                loadEmployees();
+            }
+        });
+    }
+
     // Henter alle medarbejdere fra serveren i baggrunden
     public void loadEmployees() {
         new Thread(() -> {
