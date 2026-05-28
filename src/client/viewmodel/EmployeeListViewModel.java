@@ -1,6 +1,7 @@
 package client.viewmodel;
 
 import client.AppContext;
+import client.network.ServerPushListener;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -14,19 +15,24 @@ import shared.protocol.Response;
 import java.util.List;
 
 // ViewModel for medarbejder-listen
-public class EmployeeListViewModel {
+// Implementerer ServerPushListener (Observer-mønsteret) så den får besked ved ændringer
+public class EmployeeListViewModel implements ServerPushListener {
 
     private final ObservableList<Employee> employees = FXCollections.observableArrayList();
     private final StringProperty searchText    = new SimpleStringProperty("");
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
     public EmployeeListViewModel() {
-        // Lyt på server-push: genindlæs listen automatisk hvis en anden klient ændrer noget
-        AppContext.getConnection().addPushListener(event -> {
-            if ("EMPLOYEES_UPDATED".equals(event)) {
-                loadEmployees();
-            }
-        });
+        // Tilmeld os som Observer - serveren informerer os når medarbejdere ændres
+        AppContext.getConnection().addPushListener(this);
+    }
+
+    // Kaldes af serveren når en anden klient har ændret medarbejdere
+    @Override
+    public void onPush(String event) {
+        if ("EMPLOYEES_UPDATED".equals(event)) {
+            loadEmployees();
+        }
     }
 
     // Henter alle medarbejdere fra serveren i baggrunden

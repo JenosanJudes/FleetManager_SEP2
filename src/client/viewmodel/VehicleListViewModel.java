@@ -1,6 +1,7 @@
 package client.viewmodel;
 
 import client.AppContext;
+import client.network.ServerPushListener;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -14,19 +15,24 @@ import shared.protocol.Response;
 import java.util.List;
 
 // ViewModel for bils-listen - henter og holder styr på biler
-public class VehicleListViewModel {
+// Implementerer ServerPushListener (Observer-mønsteret) så den får besked ved ændringer
+public class VehicleListViewModel implements ServerPushListener {
 
     private final ObservableList<Vehicle> vehicles = FXCollections.observableArrayList();
     private final StringProperty searchText = new SimpleStringProperty("");
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
     public VehicleListViewModel() {
-        // Lyt på server-push: genindlæs biler hvis en anden klient tilføjer/ændrer/tildeler
-        AppContext.getConnection().addPushListener(event -> {
-            if ("VEHICLES_UPDATED".equals(event)) {
-                loadVehicles();
-            }
-        });
+        // Tilmeld os som Observer - serveren informerer os når biler/tildelinger ændres
+        AppContext.getConnection().addPushListener(this);
+    }
+
+    // Kaldes af serveren når en anden klient har tilføjet/ændret en bil eller tildeling
+    @Override
+    public void onPush(String event) {
+        if ("VEHICLES_UPDATED".equals(event)) {
+            loadVehicles();
+        }
     }
 
     // Henter alle biler fra serveren i en baggrundstråd

@@ -5,11 +5,8 @@ import shared.protocol.Response;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 // Forbindelsen til serveren - sender requests og modtager responses + push-notifikationer
 public class ServerConnection {
@@ -20,11 +17,11 @@ public class ServerConnection {
     private ObjectOutputStream out;
     private ObjectInputStream  in;
 
-    // Lyttere der kaldes når serveren sender en push-notifikation
-    private final List<Consumer<String>> pushListeners = new CopyOnWriteArrayList<>();
+    // Observer-lyttere der informeres ved server-push (Observer-mønsteret)
+    private final List<ServerPushListener> pushListeners = new ArrayList<>();
 
-    // Den ventende response fra en send()-anmodning
-    private volatile CompletableFuture<Response> pendingResponse;
+    // Den seneste response fra serveren (sættes af reader-tråden)
+    private Response lastResponse;
 
     // Opret forbindelsen til serveren
     public void connect() throws IOException {
@@ -36,7 +33,8 @@ public class ServerConnection {
         System.out.println("Forbundet til serveren");
     }
 
-    // Baggrundstråd der læser ALT fra serveren - både responses og push-notifikationer
+    // Baggrundstråd der læser ALT indkommende fra serveren
+    // Adskiller push-notifikationer fra svar på requests
     private void startReaderThread() {
         Thread reader = new Thread(() -> {
             while (true) {
@@ -44,15 +42,21 @@ public class ServerConnection {
                     Response response = (Response) in.readObject();
 
                     if (response.isPush()) {
-                        // Server-push: informer alle lyttere (f.eks. ViewModels der genindlæser)
-                        String event = response.getMessage();
-                        for (Consumer<String> listener : pushListeners) {
-                            listener.accept(event);
+                        // Server-push: informer alle Observer-lyttere
+                        // Lav en kopi af listen så vi ikke holder låsen mens vi kalder lytterne
+                        List<ServerPushListener> snapshot;
+                        synchronized (this) {
+                            snapshot = new ArrayList<>(pushListeners);
+                        }
+                        for (ServerPushListener listener : snapshot) {
+                            listener.onPush(response.getMessage());
                         }
                     } else {
-                        // Svar på vores egen request: fuldfør den ventende fremtid
-                        CompletableFuture<Response> future = pendingResponse;
-                        if (future != null) future.complete(response);
+                        // Svar på vores request: gem svaret og vågn send() op
+                        synchronized (this) {
+                            lastResponse = response;
+                            notifyAll(); // Vækker den ventende send()-metode
+                        }
                     }
 
                 } catch (Exception e) {
@@ -65,18 +69,17 @@ public class ServerConnection {
         reader.start();
     }
 
-    // Send en request og vent på svaret (maks 10 sekunder)
+    // Send en request og vent på svaret
+    // Bruger wait()/notifyAll() fra SDT1 i stedet for avanceret CompletableFuture
     public synchronized Response send(Request request) throws Exception {
-        CompletableFuture<Response> future = new CompletableFuture<>();
-        pendingResponse = future;
         out.writeObject(request);
         out.flush();
-        return future.get(10, TimeUnit.SECONDS);
+        wait(); // Frigiver låsen og venter - reader-tråden kalder notifyAll() når svaret er klar
+        return lastResponse;
     }
 
-    // Tilmeld en lytter til server-push notifikationer
-    // event vil være f.eks. "EMPLOYEES_UPDATED" eller "VEHICLES_UPDATED"
-    public void addPushListener(Consumer<String> listener) {
+    // Tilmeld en Observer-lytter til server-push notifikationer
+    public synchronized void addPushListener(ServerPushListener listener) {
         pushListeners.add(listener);
     }
 }
