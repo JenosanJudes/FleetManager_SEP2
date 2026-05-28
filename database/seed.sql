@@ -36,5 +36,5 @@ INSERT INTO vehicle_assignments (vehicle_id, employee_id) VALUES
     (1, 1),  -- Rasmus kører DT73085
     (2, 2),  -- Jakob kører DT73011
     (3, 3),  -- Søren kører DY86762
-    (4, 1),  -- Helle kører EC45760
-    (5, 4);  -- Michael kører DP24641
+    (4, 4),  -- Helle kører EC45760
+    (5, 5);  -- Michael kører DP24641
