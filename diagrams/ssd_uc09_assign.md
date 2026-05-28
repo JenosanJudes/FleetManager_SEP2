@@ -3,7 +3,7 @@
 Kopiér koden nedenfor ind på https://mermaid.live
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#3B5998', 'primaryTextColor': '#fff', 'primaryBorderColor': '#2C4170', 'lineColor': '#555', 'secondaryColor': '#E8EEF7', 'actorBkg': '#3B5998', 'actorTextColor': '#fff', 'actorBorderColor': '#2C4170'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#3B5998', 'primaryTextColor': '#333', 'primaryBorderColor': '#2C4170', 'lineColor': '#555', 'secondaryColor': '#E8EEF7', 'actorBkg': '#3B5998', 'actorTextColor': '#fff', 'actorBorderColor': '#2C4170', 'signalColor': '#555', 'signalTextColor': '#333', 'noteBkgColor': '#E8EEF7', 'noteTextColor': '#333'}}}%%
 sequenceDiagram
     actor FA as Flådeansvarlig
     participant K as Klient (JavaFX)
