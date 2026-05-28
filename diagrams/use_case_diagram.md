@@ -35,6 +35,6 @@ flowchart LR
     actor --- UC11
     actor --- UC12
 
-    style system fill:#fffde7,stroke:#f5c218,stroke-width:2px
-    style actor fill:#fff,stroke:#c8a000
+    style system fill:#F5F7FB,stroke:#3B5998,stroke-width:2px
+    style actor fill:#fff,stroke:#3B5998
 ```

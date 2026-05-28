@@ -29,10 +29,10 @@ flowchart TD
 
     N -- Nej --> L
     N -- Ja --> O["Server returnerer Response.ok(User)"]
-    O --> P["AppContext gemmer User og ServerConnection\nStartReaderThread() begynder at lytte"]
+    O --> P["AppContext gemmer User og ServerConnection\nstartReaderThread() begynder at lytte"]
     P --> Q["Klienten skifter til hovedskærmen"]
     Q --> R([Slut])
 
-    style A fill:#f5c218,color:#000,stroke:#c8a000
-    style R fill:#f5c218,color:#000,stroke:#c8a000
+    style A fill:#3B5998,color:#fff,stroke:#2C4170
+    style R fill:#3B5998,color:#fff,stroke:#2C4170
 ```

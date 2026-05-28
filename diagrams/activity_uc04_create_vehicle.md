@@ -30,7 +30,7 @@ flowchart TD
     R --> S["Ny bil vises i listen"]
     S --> T([Slut])
 
-    style A fill:#f5c218,color:#000,stroke:#c8a000
-    style T fill:#f5c218,color:#000,stroke:#c8a000
-    style Q fill:#fffde7,stroke:#c8a000,stroke-dasharray:5 5
+    style A fill:#3B5998,color:#fff,stroke:#2C4170
+    style T fill:#3B5998,color:#fff,stroke:#2C4170
+    style Q fill:#E8EEF7,stroke:#3B5998,stroke-dasharray:5 5
 ```
