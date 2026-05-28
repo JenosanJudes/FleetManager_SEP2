@@ -9,29 +9,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for VehicleService.
- *
- * Testteknikker brugt:
- *   - Triple A (Arrange-Act-Assert)
- *   - Equivalence Partitioning (EP)
- *   - Boundary Value Analysis (BVA)
- *   - Black-box (vi tester adfærd ud fra krav, ikke intern kode)
- *
- * Databasen erstattes af en simpel in-memory stub (InMemoryVehicleDao),
- * så tests kan køre uden PostgreSQL.
- *
- * Krav til kørsel i IntelliJ:
- *   1. Højreklik på test/-mappen → "Mark Directory as" → "Test Sources Root"
- *   2. Åbn denne fil. IntelliJ tilbyder at tilføje JUnit 5 til classpath.
- *      Klik "Add JUnit 5 to classpath" og accepter.
- *   3. Kør alle tests med: Run → Run 'VehicleServiceTest'
- */
+// Tests for VehicleService.
+// Vi bruger en fake DAO (InMemoryVehicleDao) i stedet for den rigtige database,
+// så vi kan teste uden at have PostgreSQL kørende.
+// Jeg bruger Triple A (Arrange, Act, Assert) i alle tests.
 class VehicleServiceTest {
 
-    // ──────────────────────────────────────────────────────────
-    // In-memory stub – erstatter den rigtige PostgreSQL-DAO
-    // ──────────────────────────────────────────────────────────
+    // Fake DAO der gemmer biler i en liste i stedet for en database
     private static class InMemoryVehicleDao implements VehicleDao {
 
         private final List<Vehicle> database = new ArrayList<>();
@@ -52,6 +36,7 @@ class VehicleServiceTest {
 
         @Override
         public Vehicle create(Vehicle vehicle) {
+            // Giv bilen et id og gem den
             Vehicle saved = new Vehicle(
                     nextId++,
                     vehicle.licensePlate(),
@@ -77,6 +62,7 @@ class VehicleServiceTest {
 
         @Override
         public Vehicle update(Vehicle vehicle) {
+            // Fjern den gamle og indsæt den nye
             database.removeIf(v -> v.id() == vehicle.id());
             database.add(vehicle);
             return vehicle;
@@ -94,13 +80,10 @@ class VehicleServiceTest {
         }
     }
 
-    // ──────────────────────────────────────────────────────────
-    // Opsætning – kører før hver enkelt test
-    // ──────────────────────────────────────────────────────────
     private VehicleService service;
     private InMemoryVehicleDao stubDao;
 
-    // Hjælpemetode – laver et minimalt Vehicle-objekt til brug i tests
+    // Laver et minimalt Vehicle-objekt til brug i tests
     private Vehicle makeVehicle(int id, String licensePlate) {
         return new Vehicle(id, licensePlate, "Tesla", "Model Y",
                 VehicleType.PERSONBIL, PlateColor.HVID,
@@ -111,15 +94,13 @@ class VehicleServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Arrange (fælles): opret service med in-memory stub i stedet for databasen
+        // Kører før hver test - nulstiller alt
         stubDao = new InMemoryVehicleDao();
         service = new VehicleService(stubDao);
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // create() – EP og Black-box
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for create() ---
 
     @Test
     @DisplayName("EP1 – create med gyldigt reg.nr. returnerer gemt bil")
@@ -167,9 +148,7 @@ class VehicleServiceTest {
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // search() – BVA (grænseværdier)
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for search() - grænseværdier (BVA) ---
 
     @Test
     @DisplayName("BVA – search med null returnerer alle biler")
@@ -239,9 +218,7 @@ class VehicleServiceTest {
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // update() – Black-box
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for update() ---
 
     @Test
     @DisplayName("update med gyldigt reg.nr. returnerer opdateret bil")

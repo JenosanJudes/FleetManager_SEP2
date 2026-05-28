@@ -11,22 +11,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for EmployeeService.
- *
- * Testteknikker brugt:
- *   - Triple A (Arrange-Act-Assert)
- *   - Equivalence Partitioning (EP)
- *   - Black-box (vi tester adfærd ud fra krav, ikke intern kode)
- *
- * Databasen erstattes af en simpel in-memory stub (InMemoryEmployeeDao),
- * så tests kan køre uden PostgreSQL.
- */
+// Tests for EmployeeService.
+// Vi bruger en fake DAO i stedet for databasen, så vi ikke behøver PostgreSQL.
+// Jeg bruger Triple A (Arrange, Act, Assert) i alle tests.
 class EmployeeServiceTest {
 
-    // ──────────────────────────────────────────────────────────
-    // In-memory stub – erstatter den rigtige PostgreSQL-DAO
-    // ──────────────────────────────────────────────────────────
+    // Fake DAO der gemmer medarbejdere i en liste
     private static class InMemoryEmployeeDao implements EmployeeDao {
 
         private final List<Employee> database = new ArrayList<>();
@@ -47,6 +37,7 @@ class EmployeeServiceTest {
 
         @Override
         public Employee create(Employee employee) {
+            // Giv medarbejderen et id og gem
             Employee saved = new Employee(
                     nextId++,
                     employee.employeeNo(),
@@ -70,13 +61,10 @@ class EmployeeServiceTest {
         }
     }
 
-    // ──────────────────────────────────────────────────────────
-    // Opsætning – kører før hver enkelt test
-    // ──────────────────────────────────────────────────────────
     private EmployeeService service;
     private InMemoryEmployeeDao stubDao;
 
-    // Hjælpemetode – laver et minimalt Employee-objekt til brug i tests
+    // Laver et minimalt Employee-objekt til brug i tests
     private Employee makeEmployee(int id, String fullName) {
         return new Employee(id, "EMP001", fullName,
                 "test@via.dk", "12345678",
@@ -86,15 +74,13 @@ class EmployeeServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Arrange (fælles): opret service med in-memory stub i stedet for databasen
+        // Kører før hver test - nulstiller alt
         stubDao = new InMemoryEmployeeDao();
         service = new EmployeeService(stubDao);
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // create() – EP og Black-box
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for create() ---
 
     @Test
     @DisplayName("EP1 – create med gyldigt navn returnerer gemt medarbejder")
@@ -142,9 +128,7 @@ class EmployeeServiceTest {
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // update() – Black-box
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for update() ---
 
     @Test
     @DisplayName("update med gyldigt navn returnerer opdateret medarbejder")

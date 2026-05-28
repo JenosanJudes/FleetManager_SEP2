@@ -10,23 +10,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for AssignmentService.
- *
- * Testteknikker brugt:
- *   - Triple A (Arrange-Act-Assert)
- *   - Equivalence Partitioning (EP)
- *   - Boundary Value Analysis (BVA)
- *   - Black-box (vi tester adfærd ud fra krav, ikke intern kode)
- *
- * Databasen erstattes af en simpel in-memory stub (InMemoryAssignmentDao),
- * så tests kan køre uden PostgreSQL.
- */
+// Tests for AssignmentService.
+// Vi bruger en fake DAO i stedet for databasen, så vi ikke behøver PostgreSQL.
+// Jeg bruger Triple A (Arrange, Act, Assert) i alle tests.
 class AssignmentServiceTest {
 
-    // ──────────────────────────────────────────────────────────
-    // In-memory stub – erstatter den rigtige PostgreSQL-DAO
-    // ──────────────────────────────────────────────────────────
+    // Fake DAO der gemmer tildelinger i en liste
     private static class InMemoryAssignmentDao implements AssignmentDao {
 
         private final List<VehicleAssignment> database = new ArrayList<>();
@@ -34,6 +23,7 @@ class AssignmentServiceTest {
 
         @Override
         public VehicleAssignment getActiveForVehicle(int vehicleId) {
+            // Find den aktive tildeling (unassignedAt er null = stadig aktiv)
             for (VehicleAssignment a : database) {
                 if (a.vehicleId() == vehicleId && a.unassignedAt() == null) return a;
             }
@@ -42,7 +32,7 @@ class AssignmentServiceTest {
 
         @Override
         public VehicleAssignment assign(int vehicleId, int employeeId) {
-            // Afslut eventuel aktiv tildeling
+            // Afslut eventuel eksisterende tildeling for bilen
             for (int i = 0; i < database.size(); i++) {
                 VehicleAssignment a = database.get(i);
                 if (a.vehicleId() == vehicleId && a.unassignedAt() == null) {
@@ -54,6 +44,7 @@ class AssignmentServiceTest {
                     ));
                 }
             }
+            // Opret ny tildeling
             VehicleAssignment saved = new VehicleAssignment(
                     nextId++, vehicleId, "TEST01",
                     employeeId, "Testperson", "test@via.dk",
@@ -66,6 +57,7 @@ class AssignmentServiceTest {
 
         @Override
         public void unassign(int vehicleId) {
+            // Sæt unassignedAt til nu på den aktive tildeling
             for (int i = 0; i < database.size(); i++) {
                 VehicleAssignment a = database.get(i);
                 if (a.vehicleId() == vehicleId && a.unassignedAt() == null) {
@@ -80,26 +72,21 @@ class AssignmentServiceTest {
         }
     }
 
-    // ──────────────────────────────────────────────────────────
-    // Opsætning – kører før hver enkelt test
-    // ──────────────────────────────────────────────────────────
     private AssignmentService service;
 
     @BeforeEach
     void setUp() {
-        // Arrange (fælles): opret service med in-memory stub i stedet for databasen
+        // Kører før hver test - nulstiller alt
         service = new AssignmentService(new InMemoryAssignmentDao());
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // assign() – EP og BVA (grænseværdier)
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for assign() - grænseværdier (BVA) ---
 
     @Test
     @DisplayName("EP1 – assign med gyldige ids returnerer aktiv tildeling")
     void assign_withValidIds_returnsAssignment() {
-        // Arrange – gyldige ids er > 0
+        // Arrange - gyldige ids er større end 0
 
         // Act
         VehicleAssignment result = service.assign(1, 1);
@@ -114,7 +101,7 @@ class AssignmentServiceTest {
     @Test
     @DisplayName("BVA – assign med vehicleId = 0 kaster IllegalArgumentException")
     void assign_withZeroVehicleId_throwsIllegalArgumentException() {
-        // Arrange – 0 er ved grænsen (ugyldig)
+        // Arrange - 0 er grænsen, det er ikke gyldigt
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> service.assign(0, 1));
@@ -132,16 +119,14 @@ class AssignmentServiceTest {
     @Test
     @DisplayName("BVA – assign med employeeId = 0 kaster IllegalArgumentException")
     void assign_withZeroEmployeeId_throwsIllegalArgumentException() {
-        // Arrange – 0 er ved grænsen (ugyldig)
+        // Arrange - 0 er grænsen, det er ikke gyldigt
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> service.assign(1, 0));
     }
 
 
-    // ──────────────────────────────────────────────────────────
-    // unassign() – EP og BVA
-    // ──────────────────────────────────────────────────────────
+    // --- Tests for unassign() ---
 
     @Test
     @DisplayName("EP1 – unassign med gyldigt vehicleId kaster ingen exception")
@@ -156,7 +141,7 @@ class AssignmentServiceTest {
     @Test
     @DisplayName("BVA – unassign med vehicleId = 0 kaster IllegalArgumentException")
     void unassign_withZeroVehicleId_throwsIllegalArgumentException() {
-        // Arrange – 0 er ved grænsen (ugyldig)
+        // Arrange - 0 er grænsen, det er ikke gyldigt
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> service.unassign(0));
