@@ -44,10 +44,10 @@ class VehicleServiceTest {
 
         @Override
         public Vehicle getById(int id) {
-            return database.stream()
-                    .filter(v -> v.id() == id)
-                    .findFirst()
-                    .orElse(null);
+            for (Vehicle v : database) {
+                if (v.id() == id) return v;
+            }
+            return null;
         }
 
         @Override
@@ -84,11 +84,13 @@ class VehicleServiceTest {
 
         @Override
         public List<Vehicle> search(String licensePlate) {
-            return database.stream()
-                    .filter(v -> v.licensePlate()
-                            .toLowerCase()
-                            .contains(licensePlate.toLowerCase()))
-                    .toList();
+            List<Vehicle> result = new ArrayList<>();
+            for (Vehicle v : database) {
+                if (v.licensePlate().toLowerCase().contains(licensePlate.toLowerCase())) {
+                    result.add(v);
+                }
+            }
+            return result;
         }
     }
 
