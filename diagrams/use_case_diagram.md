@@ -19,6 +19,7 @@ flowchart LR
         UC09(["UC09\nTildel bil til medarbejder"])
         UC10(["UC10\nFjern biltildeling"])
         UC11(["UC11\nSe aktiv bilfører"])
+        UC12(["UC12\nLog ud"])
     end
 
     actor --- UC01
@@ -32,6 +33,7 @@ flowchart LR
     actor --- UC09
     actor --- UC10
     actor --- UC11
+    actor --- UC12
 
     style system fill:#fffde7,stroke:#f5c218,stroke-width:2px
     style actor fill:#fff,stroke:#c8a000
